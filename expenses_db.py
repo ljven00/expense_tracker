@@ -25,3 +25,31 @@ class ExpenseDB:
             self.user = getenv('DB_USER')
             self.password = getenv('DB_PASSWORD')
             self.host = getenv('DB_HOST')
+
+    def get_connection(self):
+        """Establish a database connection."""
+        if not self.conn:
+            # Avoid returning different connection object
+            try:
+                # Connect to SQLite
+                if self.use_sqlite:
+                    self.conn = sqlite3.connect(self.db_path)
+                # Connect to Postgres
+                else:
+                    self.conn = psycopg2.connect(
+                        dbname=self.dbname,
+                        user=self.user,
+                        password=self.password,
+                        host=self.host
+                    )
+            except (psycopg2.Error, sqlite3.Error) as e:
+                print(f"Database connection error: {e}")
+                return None
+        return self.conn
+
+    def close_connection(self):
+        """Close the database connection."""
+        # If there is a connection then it is closed
+        if self.conn:
+            self.conn.close()
+            self.conn = None
