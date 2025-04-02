@@ -99,6 +99,15 @@ class ExpenseDB:
         )
         self.execute_query(query)
 
+    def add_expense(self, amount, category, description):
+        pass
+
+    def delete_expense(self, expense_id):
+        pass
+
+    def update_expense(self, expense_id, amount=None, category=None, description=None):
+        pass
+
     def fetch_expenses(self):
         """Fetch all expenses and return the Result as a DataFrame."""
         conn = self.get_connection()
