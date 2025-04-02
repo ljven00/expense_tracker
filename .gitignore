@@ -1,7 +1,7 @@
 # Virtual environment
 Pipfile
 Pipfile.lock
-venv/
+.venv/
 
 # Python compiled files
 __pycache__/
