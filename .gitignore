@@ -1,0 +1,30 @@
+# Virtual environment
+Pipfile
+Pipfile.lock
+venv/
+
+# Python compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environment variables
+.env
+
+# Logs and cache
+*.log
+*.cache/
+
+# Database files
+*.sqlite3
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# IDE Conf
+.idea/
