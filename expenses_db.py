@@ -98,3 +98,13 @@ class ExpenseDB:
             """
         )
         self.execute_query(query)
+
+    def fetch_expenses(self):
+        """Fetch all expenses and return the Result as a DataFrame."""
+        conn = self.get_connection()
+        if conn is None:
+            return None
+        query = "SELECT * FROM expenses"
+        df = read_sql(query, conn)
+        conn.close()
+        return df
