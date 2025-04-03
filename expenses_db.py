@@ -3,10 +3,13 @@ import sqlite3
 from pandas import read_sql
 from dotenv import load_dotenv
 from os import getenv
-from sys import argv
+# from sys import argv
 
-global USE_SQLITE
-USE_SQLITE = len(argv) == 2 and argv[1] == "s"
+# global USE_SQLITE
+# USE_SQLITE = len(argv) == 2 and argv[1] == "s"
+
+# Loading environment variable
+load_dotenv()
 
 
 class ExpenseDB:
@@ -54,7 +57,7 @@ class ExpenseDB:
             self.conn.close()
             self.conn = None
 
-    def execute_query(self, query, params=None, fetch=False):
+    def execute_query(self, query: str, params=None, fetch=False):
         """Execute a query using query parameters in case of INSERTING, UPDATING
         If it is a SELECT then fetch is True"""
         conn = self.get_connection()
@@ -99,14 +102,47 @@ class ExpenseDB:
         )
         self.execute_query(query)
 
-    def add_expense(self, amount, category, description):
-        pass
+    def add_expense(self, amount: float, category: str, description: str):
+        """Insert a new expense into the database."""
+        query = "INSERT INTO expenses (amount, category, description) VALUES (?, ?, ?)"
+        self.execute_query(query, (amount, category, description))
+        print("Expense added successfully.")
 
-    def delete_expense(self, expense_id):
-        pass
+    def delete_expense(self, expense_id: int):
+        """Delete an expense by ID."""
+        query = "DELETE FROM expenses WHERE id = ?"
+        conn = self.get_connection()
+        if conn is None:
+            return
+        cursor = conn.cursor()
+        cursor.execute(query, (expense_id,))
+        if cursor.rowcount > 0:
+            print(f"Expense with ID {expense_id} deleted successfully.")
+        else:
+            print(f"No expense found with ID {expense_id}.")
+        conn.commit()
+        cursor.close()
 
-    def update_expense(self, expense_id, amount=None, category=None, description=None):
-        pass
+    def update_expense(self, expense_id: int, amount=None, category=None, description=None):
+        """Update an expense based on provided values."""
+        updates = []
+        params = []
+        if amount:
+            updates.append("amount = ?")
+            params.append(amount)
+        if category:
+            updates.append("category = ?")
+            params.append(category)
+        if description is not None:
+            updates.append("description = ?")
+            params.append(description)
+        if not updates:
+            print("No update provided.")
+            return
+        query = f"UPDATE expenses SET {', '.join(updates)} WHERE id = ?"
+        params.append(expense_id)
+        self.execute_query(query, tuple(params))
+        print(f"Expense with ID {expense_id} updated successfully.")
 
     def fetch_expenses(self):
         """Fetch all expenses and return the Result as a DataFrame."""
