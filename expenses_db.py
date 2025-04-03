@@ -1,22 +1,26 @@
 import psycopg2
 import sqlite3
-from pandas import read_sql
+import pandas as pd
 from dotenv import load_dotenv
 from os import getenv
+
+
 # from sys import argv
 
 # global USE_SQLITE
 # USE_SQLITE = len(argv) == 2 and argv[1] == "s"
 
 # Loading environment variable
-load_dotenv()
 
 
 class ExpenseDB:
     """This class allows to connect to the expenses database
     and perform operation like add, update, delete, and retrieve
     expenses"""
-    def __init__(self, use_sqlite=False):
+
+    USE_SQLITE = False
+
+    def __init__(self, use_sqlite=USE_SQLITE):
         """When Initialize the path to the sqlite db is set
             if using SQLite else the Postgres Credentials are loaded"""
         self.use_sqlite = use_sqlite
@@ -150,6 +154,38 @@ class ExpenseDB:
         if conn is None:
             return None
         query = "SELECT * FROM expenses"
-        df = read_sql(query, conn)
+        df = pd.read_sql(query, conn)
         conn.close()
         return df
+
+    def analyze(self, category_filter=None, year_filter=None, month_filter=None):
+        """Analyze expenses with additional features."""
+        df = self.fetch_expenses()
+        if df is None or df.empty:
+            print("No expenses recorded.")
+            return
+
+        # Extract year, month, and day from the date column
+        df['date'] = pd.to_datetime(df['date'])
+        df['year'] = df['date'].dt.year
+        df['month'] = df['date'].dt.month
+        df['day'] = df['date'].dt.day
+
+        # Apply filters
+        if category_filter:
+            df = df[df['category'].str.lower() == category_filter.lower()]
+        if year_filter:
+            df = df[df['year'] == int(year_filter)]
+        if month_filter:
+            df = df[df['month'] == int(month_filter)]
+
+        if df.empty:
+            print("No expenses match the given filters.")
+            return
+
+        # Apply window functions for grouping by category
+        df['category_sum'] = df.groupby('category')['amount'].transform('sum')
+        df['category_avg'] = df.groupby('category')['amount'].transform('mean')
+
+        print(df[['id', 'amount', 'category', 'description', 'date', 'year', 'month', 'day', 'category_sum',
+                  'category_avg']])
