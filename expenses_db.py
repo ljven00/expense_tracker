@@ -1,55 +1,22 @@
 """
-Expense Tracker Database Management
+ExpenseDB: A cross-database (SQLite/PostgreSQL) expense tracking utility.
 
-This script provides a class `ExpenseDB` to manage an expense tracking database.
-It supports both PostgreSQL and SQLite databases, allowing users to store and
-manage expense records.
-
-Features:
-- Connect to PostgreSQL or SQLite dynamically.
-- Create the `expenses` table if it does not exist.
-- Add, update, delete, and fetch expense records.
-- Store database credentials securely using environment variables.
-
-Usage:
-- Run the script with `s` as the second argument to use SQLite.
-- Otherwise, PostgreSQL credentials are loaded from `.env`.
+This module provides a class to manage an expense database with functionality to
+add, update, delete, fetch, and analyze expense records using SQLite or PostgreSQL.
 
 Classes:
-- `ExpenseDB`: Handles database connections and expense operations.
-
-Methods:
-- `get_connection()`: Establishes and returns a database connection.
-- `close_connection()`: Closes the database connection.
-- `create_table()`: Creates the `expenses` table if it does not exist.
-- `execute_query(query, params=None, fetch=False)`: Executes SQL queries safely.
-- `add_expense(amount, category, description)`: Adds a new expense record.
-- `delete_expense(expense_id)`: Deletes an expense by ID.
-- `update_expense(expense_id, amount=None, category=None, description=None)`: Updates expense details.
-- `fetch_expenses()`: Fetches all expenses as a pandas DataFrame.
+    ExpenseDB
 
 Dependencies:
-- `psycopg2` (for PostgreSQL connections)
-- `sqlite3` (for SQLite support)
-- `pandas` (for data handling)
-- `dotenv` (for environment variable management)
-- `os`, `sys` (for system operations)
-
-Fixes Applied:
-- Fixed the constructor definition (`def __init__` instead of `def init`).
-- Removed improper use of the `global` keyword inside the class.
-- Ensured `use_sqlite` is stored as an instance attribute.
-- Improved `DELETE` and `UPDATE` methods to handle missing records correctly.
-- Fixed `fetch_expenses()` to check for an active database connection before querying.
-
-Author: [Your Name]
-Date: [YYYY-MM-DD]
+    - psycopg2
+    - sqlite3
+    - pandas
+    - os.getenv
 """
 
 import psycopg2
 import sqlite3
 import pandas as pd
-from dotenv import load_dotenv
 from os import getenv
 
 
@@ -225,5 +192,5 @@ class ExpenseDB:
         df['category_sum'] = df.groupby('category')['amount'].transform('sum')
         df['category_avg'] = df.groupby('category')['amount'].transform('mean')
 
-        print(df[['id', 'amount', 'category', 'description', 'date', 'year', 'month', 'day', 'category_sum',
+        print(df[['id', 'amount', 'category', 'description', 'date', 'category_sum',
                   'category_avg']])
